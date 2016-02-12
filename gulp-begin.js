@@ -5,6 +5,8 @@ var fs = require('fs');
 var path = require('path');
 var _ = require('lodash');
 var merge = require('merge2');
+//var del = require('del');
+var livereload = require('tiny-lr')();
 var gp = require('gulp-load-plugins')({
     rename: {
         'gulp-cssnano': 'cssmin',
@@ -12,8 +14,6 @@ var gp = require('gulp-load-plugins')({
         'gulp-angular-templatecache': 'ngTemplates'
     }
 });
-var del = require('del');
-gp.livereload = require('tiny-lr')();
 
 /**
  * ## Build
@@ -180,7 +180,6 @@ module.exports = function(gulp, options) {
     var name = task => options.prefix ? `${options.prefix}_${task}` : task;
 
     gulp.task(name('html'), function() {
-        del.sync(files.src.html);
         return gulp.src(files.src.html)
             .pipe(gp.htmlmin({collapseWhitespace: true}))
             .pipe(gulp.dest(options.client.dest));
@@ -242,7 +241,6 @@ module.exports = function(gulp, options) {
     });
 
     gulp.task(name('images'), function() {
-        del.sync(files.src.images);
         return gulp.src(files.src.images)
             .pipe(gp.imagemin())
             .pipe(gulp.dest(path.join(options.client.dest, options.client.images.cwd)));
@@ -316,11 +314,11 @@ module.exports = function(gulp, options) {
         */
         log('app started on port', options.port);
 
-        gp.livereload.listen(35729);
+        livereload.listen(35729);
         gulp.watch(path.join(options.client.dest, '**/*'), function(event){
             log('livereload initiated');
             setTimeout(function() {
-                gp.livereload.changed({
+                livereload.changed({
                     body: {
                         files: [path.relative('' + options.port, event.path)]
                     }
