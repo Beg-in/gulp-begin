@@ -47,6 +47,16 @@ var gp = require('gulp-load-plugins')({
 });
 
 /**
+ * ## Using `gulp-begin`
+ *
+ * Here's an example
+ * ```javascript
+ *   //TODO
+ * ```
+ * @module usage
+ */
+
+/**
  * ## Build
  * ### Requirements
  * - [Postgresql](http://www.postgresql.org/)
