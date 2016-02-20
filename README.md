@@ -25,6 +25,11 @@ begin(gulp, {
 #### `options.exclude`
 An array of task names to exclude from `gulp`.
 
+#### `options.only`
+An array of task names that will _only_ be used. All other (default) tasks
+will be excluded. This field will be disregared if `options.exclude` is
+truthy.
+
 #### `options.warnExclusions`
 If this field is set to a truthy value, `gulp-begin` will warn if a `gulp`
 command is run with an excluded task.
