@@ -5,10 +5,5 @@ var gulp = require('gulp');
 
 gulp.task('default', ['test']);
 
-begin(gulp, {
-  test: {
-    main: 'test/test.js'
-  },
-  exclude: ['server'],
-  warnExclusions: true
-});
+// place options in the object below
+begin(gulp, {});

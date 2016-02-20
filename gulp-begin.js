@@ -71,6 +71,11 @@ var gp = require('gulp-load-plugins')({
  * #### `options.exclude`
  * An array of task names to exclude from `gulp`.
  *
+ * #### `options.only`
+ * An array of task names that will _only_ be used. All other (default) tasks
+ * will be excluded. This field will be disregared if `options.exclude` is
+ * truthy.
+ *
  * #### `options.warnExclusions`
  * If this field is set to a truthy value, `gulp-begin` will warn if a `gulp`
  * command is run with an excluded task.
@@ -241,23 +246,6 @@ module.exports = function(gulp, options) {
     };
 
     var name = task => options.prefix ? `${options.prefix}_${task}` : task;
-
-    var excludedTasks = options.exclude || [];
-
-    var task = (taskName, callback) => {
-      var isExcluded = _.includes(excludedTasks, taskName)
-        || _.includes(excludedTasks, name(taskName));
-
-      if (isExcluded) {
-        if (options.warnExclusions) {
-          gulp.task(taskName, () => {
-            console.warn(`Task <${taskName}> has been explicity excluded!`);
-          });
-        }
-      } else {
-        gulp.task(taskName, callback);
-      }
-    };
 
     /**
      * ## Default Server
@@ -507,6 +495,34 @@ module.exports = function(gulp, options) {
             })).pipe(gulp.dest('.'));
       }]
     };
+
+    var excludedTasks;
+
+    if (options.exclude) {
+      excludedTasks = options.exclude;
+    } else if (options.only) {
+      var allDefaultTaskNames   = _.keys(defaultTasks);
+      var onlyDefaultTaskNames  = _.map(options.only, name);
+      excludedTasks = _.difference(allDefaultTaskNames, onlyDefaultTaskNames);
+    } else {
+      excludedTasks = [];
+    }
+
+    var task = (taskName, callback) => {
+      var isExcluded = _.includes(excludedTasks, taskName)
+        || _.includes(excludedTasks, name(taskName));
+
+      if (isExcluded) {
+        if (options.warnExclusions) {
+          gulp.task(taskName, () => {
+            console.warn(`Task <${taskName}> has been explicity excluded!`);
+          });
+        }
+      } else {
+        gulp.task(taskName, callback);
+      }
+    };
+
 
     // now, register all of the default tasks
     _.forEach(defaultTasks, (defaultTaskArgs, defaultTaskName) => {
