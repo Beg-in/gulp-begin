@@ -23,10 +23,11 @@ begin(gulp, {
 `TODO`
 
 #### `options.exclude`
-`TODO`
+An array of task names to exclude from `gulp`.
 
 #### `options.warnExclusions`
-`TODO`
+If this field is set to a truthy value, `gulp-begin` will warn if a `gulp`
+command is run with an excluded task.
 
 
 ## Default Tasks

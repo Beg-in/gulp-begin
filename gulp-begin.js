@@ -69,10 +69,11 @@ var gp = require('gulp-load-plugins')({
  * `TODO`
  *
  * #### `options.exclude`
- * `TODO`
+ * An array of task names to exclude from `gulp`.
  *
  * #### `options.warnExclusions`
- * `TODO`
+ * If this field is set to a truthy value, `gulp-begin` will warn if a `gulp`
+ * command is run with an excluded task.
  *
  * @module usage
  */
@@ -244,7 +245,11 @@ module.exports = function(gulp, options) {
     var excludedTasks = options.exclude || [];
 
     var task = (taskName, callback) => {
-      if (_.includes(excludedTasks, taskName)) {
+
+      var isExcluded = _.includes(excludedTasks, taskName)
+        || _.includes(excludedTasks, name(taskName));
+
+      if (isExcluded) {
         if (options.warnExclusions) {
           gulp.task(taskName, () => {
             console.warn(`Task <${taskName}> has been explicity excluded!`);
