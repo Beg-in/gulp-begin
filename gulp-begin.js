@@ -245,7 +245,6 @@ module.exports = function(gulp, options) {
     var excludedTasks = options.exclude || [];
 
     var task = (taskName, callback) => {
-
       var isExcluded = _.includes(excludedTasks, taskName)
         || _.includes(excludedTasks, name(taskName));
 
@@ -468,7 +467,8 @@ module.exports = function(gulp, options) {
       [name('dev')]: [() => {
         cp.execSync('npm install', {stdio: 'inherit'});
         var spawnChild = function() {
-            cp.spawn('gulp' + (process.platform === 'win32' ? '.cmd' : ''), [name('demon')], {stdio: 'inherit'}).on('close', function(code) {
+            cp.spawn('gulp' + (process.platform === 'win32' ? '.cmd' : ''),
+                [name('demon')], {stdio: 'inherit'}).on('close', (code) => {
                 if(code === 0) {
                     spawnChild();
                 }
@@ -493,7 +493,8 @@ module.exports = function(gulp, options) {
         gulp.watch(_.flatten([options.server.watch, options.test.watch]), ['test']);
       }],
       [name('docs')]: [() => {
-        return gulp.src(_.flatten([['gulpfile.js'], options.server.watch, options.test.watch, files.src.scripts]))
+        return gulp.src(_.flatten([['gulpfile.js'],
+              options.server.watch, options.test.watch, files.src.scripts]))
             .pipe(gp.concat('README.md'))
             .pipe(gp.jsdocToMarkdown({
                 template: fs.readFileSync('./docs.hbs', 'utf8')
@@ -504,9 +505,6 @@ module.exports = function(gulp, options) {
             .pipe(gp.conventionalChangelog({
                 preset: 'angular'
             })).pipe(gulp.dest('.'));
-      }],
-      [name('poke')]: [() => {
-        console.log('yup, this works!')
       }]
     };
 
