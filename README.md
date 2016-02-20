@@ -19,6 +19,58 @@ begin(gulp, {
 });
 ```
 
+### `begin(gulp, options)`
+`TODO`
+
+#### `options.exclude`
+`TODO`
+
+#### `options.warnExclusions`
+`TODO`
+
+
+## Default Tasks
+
+### `html`
+
+This task will minify HTML in `files/src/html` and place the minified
+version in the client destination directory.
+
+### `jshint`
+
+This task runs the `jshint` linter on source files and reports the
+results in a stylish manner.
+
+### `scripts`
+`TODO`
+
+### `styles`
+`TODO`
+
+### `build`
+`TODO`
+
+### `server`
+`TODO`
+
+### `demon`
+`TODO`
+
+### `dev`
+`TODO`
+
+### `test`
+`TODO`
+
+### `autotest`
+`TODO`
+
+### `docs`
+`TODO`
+
+### `changelog`
+`TODO`
+
 
 ## Build
 ### Requirements

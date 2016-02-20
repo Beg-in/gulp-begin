@@ -147,20 +147,6 @@ module.exports = function(gulp, options) {
         gp.util.log.apply(gp.util, args);
     };
 
-    var excludedTasks = options.exclude || [];
-
-    var task = function(taskName, callback) {
-      if (_.includes(excludedTasks, taskName)) {
-        if (options.warnExclusions) {
-          gulp.task(taskName, () => {
-            console.warn(`Task <${taskName}> has been explicity excluded!`);
-          });
-        }
-      } else {
-        gulp.task(taskName, callback);
-      }
-    };
-
     options = _.defaultsDeep(options, {
         root: process.cwd(),
         port: process.env.PORT,
@@ -254,6 +240,66 @@ module.exports = function(gulp, options) {
     };
 
     var name = task => options.prefix ? `${options.prefix}_${task}` : task;
+
+    var excludedTasks = options.exclude || [];
+
+    var task = (taskName, callback) => {
+      if (_.includes(excludedTasks, taskName)) {
+        if (options.warnExclusions) {
+          gulp.task(taskName, () => {
+            console.warn(`Task <${taskName}> has been explicity excluded!`);
+          });
+        }
+      } else {
+        gulp.task(taskName, callback);
+      }
+    };
+
+
+    /** ## Default Tasks
+     *
+     * ### `html`
+     *
+     * This task will minify HTML in `files/src/html` and place the minified
+     * version in the client destination directory.
+     *
+     * ### `jshint`
+     *
+     * This task runs the `jshint` linter on source files and reports the
+     * results in a stylish manner.
+     *
+     * ### `scripts`
+     * `TODO`
+     *
+     * ### `styles`
+     * `TODO`
+     *
+     * ### `build`
+     * `TODO`
+     *
+     * ### `server`
+     * `TODO`
+     *
+     * ### `demon`
+     * `TODO`
+     *
+     * ### `dev`
+     * `TODO`
+     *
+     * ### `test`
+     * `TODO`
+     *
+     * ### `autotest`
+     * `TODO`
+     *
+     * ### `docs`
+     * `TODO`
+     *
+     * ### `changelog`
+     * `TODO`
+     *
+     * @module default-tasks
+     */
 
     task(name('html'), function() {
         return gulp.src(files.src.html)
