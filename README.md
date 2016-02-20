@@ -5,18 +5,18 @@
 
 Here's an example
 ```javascript
- var begin = require('gulp-begin');
- var gulp = require('gulp');
+var begin = require('gulp-begin');
+var gulp = require('gulp');
 
- gulp.task('default', ['test']);
+gulp.task('default', ['test']);
 
- begin(gulp, {
-   test: {
-     main: 'test/myTestRunner.js'
-   },
-   exclude: ['server'],
-   warnExclusions: true
- });
+begin(gulp, {
+  test: {
+    main: 'test/myTestRunner.js'
+  },
+  exclude: ['server'],
+  warnExclusions: true
+});
 ```
 
 

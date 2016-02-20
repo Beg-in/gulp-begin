@@ -51,19 +51,29 @@ var gp = require('gulp-load-plugins')({
  *
  * Here's an example
  * ```javascript
- *  var begin = require('gulp-begin');
- *  var gulp = require('gulp');
+ * var begin = require('gulp-begin');
+ * var gulp = require('gulp');
  *
- *  gulp.task('default', ['test']);
+ * gulp.task('default', ['test']);
  *
- *  begin(gulp, {
- *    test: {
- *      main: 'test/myTestRunner.js'
- *    },
- *    exclude: ['server'],
- *    warnExclusions: true
- *  });
+ * begin(gulp, {
+ *   test: {
+ *     main: 'test/myTestRunner.js'
+ *   },
+ *   exclude: ['server'],
+ *   warnExclusions: true
+ * });
  * ```
+ *
+ * ### `begin(gulp, options)`
+ * `TODO`
+ *
+ * #### `options.exclude`
+ * `TODO`
+ *
+ * #### `options.warnExclusions`
+ * `TODO`
+ *
  * @module usage
  */
 
