@@ -4,9 +4,20 @@
 ## Using `gulp-begin`
 
 Here's an example
- ```javascript
-   //TODO
- ```
+```javascript
+ var begin = require('gulp-begin');
+ var gulp = require('gulp');
+
+ gulp.task('default', ['test']);
+
+ begin(gulp, {
+   test: {
+     main: 'test/myTestRunner.js'
+   },
+   exclude: ['server'],
+   warnExclusions: true
+ });
+```
 
 
 ## Build
