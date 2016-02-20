@@ -88,9 +88,12 @@ module.exports = function(gulp, options) {
     var excludedTasks = options.exclude || [];
 
     var task = function(taskName, callback) {
-      if (_.includes(excludedTasks, taskName) {
-        // do nothing
-        return;
+      if (_.includes(excludedTasks, taskName)) {
+        if (options.warnExclusions) {
+          gulp.task(taskName, () => {
+            console.warn(`Task <${taskName}> has been explicity excluded!`);
+          });
+        }
       } else {
         gulp.task(taskName, callback);
       }
@@ -190,13 +193,13 @@ module.exports = function(gulp, options) {
 
     var name = task => options.prefix ? `${options.prefix}_${task}` : task;
 
-    gulp.task(name('html'), function() {
+    task(name('html'), function() {
         return gulp.src(files.src.html)
             .pipe(gp.htmlmin({collapseWhitespace: true}))
             .pipe(gulp.dest(options.client.dest));
     });
 
-    gulp.task(name('jshint'), function() {
+    task(name('jshint'), function() {
         return gulp.src(_.flatten([
                 files.src.scripts,
                 options.server.watch,
@@ -207,7 +210,7 @@ module.exports = function(gulp, options) {
             //.pipe(jshint.reporter('fail'));
     });
 
-    gulp.task(name('scripts'), [name('jshint')], function() {
+    task(name('scripts'), [name('jshint')], function() {
         var src = merge(
             gulp.src(files.lib.scripts)
                 .pipe(gp.concat('libs.js')),
@@ -232,7 +235,7 @@ module.exports = function(gulp, options) {
             .pipe(gulp.dest(path.join(options.client.dest, options.client.scripts.cwd)));
     });
 
-    gulp.task(name('styles'), function() {
+    task(name('styles'), function() {
         var src = gulp.src(files.src.styles.main);
         // src = src.pipe(gp.debug({title: 'styles'}));
         return src
@@ -251,13 +254,13 @@ module.exports = function(gulp, options) {
             .pipe(gulp.dest(path.join(options.client.dest, options.client.styles.cwd)));
     });
 
-    gulp.task(name('images'), function() {
+    task(name('images'), function() {
         return gulp.src(files.src.images)
             .pipe(gp.imagemin())
             .pipe(gulp.dest(path.join(options.client.dest, options.client.images.cwd)));
     });
 
-    gulp.task(name('build'), [
+    task(name('build'), [
         name('html'),
         name('styles'),
         name('scripts'),
@@ -337,10 +340,10 @@ module.exports = function(gulp, options) {
             }, 1000);
         });
     };
-    gulp.task(name('server'), [name('build')], server);
-    gulp.task(name('demon'), server);
+    task(name('server'), [name('build')], server);
+    task(name('demon'), server);
 
-    gulp.task('dev', function() {
+    task('dev', function() {
         cp.execSync('npm install', {stdio: 'inherit'});
         var spawnChild = function() {
             cp.spawn('gulp' + (process.platform === 'win32' ? '.cmd' : ''), [name('demon')], {stdio: 'inherit'}).on('close', function(code) {
@@ -352,7 +355,7 @@ module.exports = function(gulp, options) {
         spawnChild();
     });
 
-    gulp.task(name('test'), [name('jshint')], function() {
+    task(name('test'), [name('jshint')], function() {
         return gulp.src(options.server.watch)
             .pipe(gp.istanbul())
             .pipe(gp.istanbul.hookRequire())
@@ -363,11 +366,11 @@ module.exports = function(gulp, options) {
             });
     });
 
-    gulp.task(name('autotest'), function() {
+    task(name('autotest'), function() {
         gulp.watch(_.flatten([options.server.watch, options.test.watch]), ['test']);
     });
 
-    gulp.task(name('docs'), function() {
+    task(name('docs'), function() {
         return gulp.src(_.flatten([['gulpfile.js'], options.server.watch, options.test.watch, files.src.scripts]))
             .pipe(gp.concat('README.md'))
             .pipe(gp.jsdocToMarkdown({
@@ -375,7 +378,7 @@ module.exports = function(gulp, options) {
             })).pipe(gulp.dest('.'));
     });
 
-    gulp.task(name('changelog'), function() {
+    task(name('changelog'), function() {
         return gulp.src('CHANGELOG.md')
             .pipe(gp.conventionalChangelog({
                 preset: 'angular'
