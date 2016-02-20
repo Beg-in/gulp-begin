@@ -85,6 +85,17 @@ module.exports = function(gulp, options) {
         gp.util.log.apply(gp.util, args);
     };
 
+    var excludedTasks = options.exclude || [];
+
+    var task = function(taskName, callback) {
+      if (_.includes(excludedTasks, taskName) {
+        // do nothing
+        return;
+      } else {
+        gulp.task(taskName, callback);
+      }
+    };
+
     options = _.defaultsDeep(options, {
         root: process.cwd(),
         port: process.env.PORT,
