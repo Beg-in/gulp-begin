@@ -260,125 +260,12 @@ module.exports = function(gulp, options) {
       }
     };
 
-
-    /** ## Default Tasks
+    /**
+     * ## Default Server
      *
-     * ### `html`
-     *
-     * This task will minify HTML in `files/src/html` and place the minified
-     * version in the client destination directory.
-     *
-     * ### `jshint`
-     *
-     * This task runs the `jshint` linter on source files and reports the
-     * results in a stylish manner.
-     *
-     * ### `scripts`
      * `TODO`
-     *
-     * ### `styles`
-     * `TODO`
-     *
-     * ### `build`
-     * `TODO`
-     *
-     * ### `server`
-     * `TODO`
-     *
-     * ### `demon`
-     * `TODO`
-     *
-     * ### `dev`
-     * `TODO`
-     *
-     * ### `test`
-     * `TODO`
-     *
-     * ### `autotest`
-     * `TODO`
-     *
-     * ### `docs`
-     * `TODO`
-     *
-     * ### `changelog`
-     * `TODO`
-     *
-     * @module default-tasks
+     * @module default-server
      */
-
-    task(name('html'), function() {
-        return gulp.src(files.src.html)
-            .pipe(gp.htmlmin({collapseWhitespace: true}))
-            .pipe(gulp.dest(options.client.dest));
-    });
-
-    task(name('jshint'), function() {
-        return gulp.src(_.flatten([
-                files.src.scripts,
-                options.server.watch,
-                options.test.watch
-            ]))
-            .pipe(gp.jshint())
-            .pipe(gp.jshint.reporter(require('jshint-stylish')));
-            //.pipe(jshint.reporter('fail'));
-    });
-
-    task(name('scripts'), [name('jshint')], function() {
-        var src = merge(
-            gulp.src(files.lib.scripts)
-                .pipe(gp.concat('libs.js')),
-            gulp.src(files.src.templates)
-                .pipe(gp.htmlmin({collapseWhitespace: true}))
-                .pipe(gp.ngTemplates('templates.js', {
-                    standalone: true
-                })),
-            gulp.src(files.src.scripts)
-                .pipe(gp.sourcemaps.init())
-                .pipe(gp.babel())
-                .pipe(gp.ngAnnotate({
-                    'single_quotes': true
-                }))
-        );
-        src = src.pipe(gp.debug({title: 'scripts'}));
-        // src = src.pipe(gp.plumber({errorHandler: true}));
-        return src
-            .pipe(gp.concat(options.client.scripts.dest))
-            .pipe(gp.uglify())
-            .pipe(gp.sourcemaps.write('.'))
-            .pipe(gulp.dest(path.join(options.client.dest, options.client.scripts.cwd)));
-    });
-
-    task(name('styles'), function() {
-        var src = gulp.src(files.src.styles.main);
-        // src = src.pipe(gp.debug({title: 'styles'}));
-        return src
-            .pipe(gp.sourcemaps.init({loadMaps: true}))
-            .pipe(gp.plumber())
-            .pipe(gp.sass({
-                includePaths: _.flatten([
-                    files.lib.styles.include,
-                    files.src.styles.include
-                ])
-            }))
-            .pipe(gp.autoprefixer())
-            .pipe(gp.concat(options.client.styles.dest))
-            .pipe(gp.cssmin())
-            .pipe(gp.sourcemaps.write('.'))
-            .pipe(gulp.dest(path.join(options.client.dest, options.client.styles.cwd)));
-    });
-
-    task(name('images'), function() {
-        return gulp.src(files.src.images)
-            .pipe(gp.imagemin())
-            .pipe(gulp.dest(path.join(options.client.dest, options.client.images.cwd)));
-    });
-
-    task(name('build'), [
-        name('html'),
-        name('styles'),
-        name('scripts'),
-        name('images')
-    ]);
 
     var server = function() {
         gulp.watch(files.src.html, [name('html')]);
@@ -453,6 +340,257 @@ module.exports = function(gulp, options) {
             }, 1000);
         });
     };
+
+    /** ## Default Tasks
+     *
+     * ### `html`
+     *
+     * This task will minify HTML in `files/src/html` and place the minified
+     * version in the client destination directory.
+     *
+     * ### `jshint`
+     *
+     * This task runs the `jshint` linter on source files and reports the
+     * results in a stylish manner.
+     *
+     * ### `scripts`
+     * `TODO`
+     *
+     * ### `styles`
+     * `TODO`
+     *
+     * ### `build`
+     * `TODO`
+     *
+     * ### `server`
+     * `TODO`
+     *
+     * ### `demon`
+     * `TODO`
+     *
+     * ### `dev`
+     * `TODO`
+     *
+     * ### `test`
+     * `TODO`
+     *
+     * ### `autotest`
+     * `TODO`
+     *
+     * ### `docs`
+     * `TODO`
+     *
+     * ### `changelog`
+     * `TODO`
+     *
+     * @module default-tasks
+     */
+
+    var defaultTasks = {
+      [name('html')]: [() => {
+        return gulp.src(files.src.html)
+            .pipe(gp.htmlmin({collapseWhitespace: true}))
+            .pipe(gulp.dest(options.client.dest));
+      }],
+      [name('jshint')]: [() => {
+        return gulp.src(_.flatten([
+                files.src.scripts,
+                options.server.watch,
+                options.test.watch
+            ]))
+            .pipe(gp.jshint())
+            .pipe(gp.jshint.reporter(require('jshint-stylish')));
+            //.pipe(jshint.reporter('fail'));
+      }],
+      [name('scripts')]: [
+        [name('jshint')],
+        () => {
+          var src = merge(
+              gulp.src(files.lib.scripts)
+                  .pipe(gp.concat('libs.js')),
+              gulp.src(files.src.templates)
+                  .pipe(gp.htmlmin({collapseWhitespace: true}))
+                  .pipe(gp.ngTemplates('templates.js', {
+                      standalone: true
+                  })),
+              gulp.src(files.src.scripts)
+                  .pipe(gp.sourcemaps.init())
+                  .pipe(gp.babel())
+                  .pipe(gp.ngAnnotate({
+                      'single_quotes': true
+                  }))
+          );
+          src = src.pipe(gp.debug({title: 'scripts'}));
+          // src = src.pipe(gp.plumber({errorHandler: true}));
+          return src
+              .pipe(gp.concat(options.client.scripts.dest))
+              .pipe(gp.uglify())
+              .pipe(gp.sourcemaps.write('.'))
+              .pipe(gulp.dest(path.join(options.client.dest, options.client.scripts.cwd)));
+      }],
+      [name('styles')]: [() => {
+        var src = gulp.src(files.src.styles.main);
+        // src = src.pipe(gp.debug({title: 'styles'}));
+        return src
+            .pipe(gp.sourcemaps.init({loadMaps: true}))
+            .pipe(gp.plumber())
+            .pipe(gp.sass({
+                includePaths: _.flatten([
+                    files.lib.styles.include,
+                    files.src.styles.include
+                ])
+            }))
+            .pipe(gp.autoprefixer())
+            .pipe(gp.concat(options.client.styles.dest))
+            .pipe(gp.cssmin())
+            .pipe(gp.sourcemaps.write('.'))
+            .pipe(gulp.dest(path.join(options.client.dest, options.client.styles.cwd)));
+      }],
+      [name('images')]: [() => {
+        return gulp.src(files.src.images)
+            .pipe(gp.imagemin())
+            .pipe(gulp.dest(path.join(options.client.dest, options.client.images.cwd)));
+
+      }],
+      [name('build')]: [[
+        name('html'),
+        name('styles'),
+        name('scripts'),
+        name('images')
+      ]],
+      [name('server')]: [
+        [name('build')],
+        server
+      ],
+      [name('demon')]: [
+        server
+      ],
+      [name('dev')]: [() => {
+        cp.execSync('npm install', {stdio: 'inherit'});
+        var spawnChild = function() {
+            cp.spawn('gulp' + (process.platform === 'win32' ? '.cmd' : ''), [name('demon')], {stdio: 'inherit'}).on('close', function(code) {
+                if(code === 0) {
+                    spawnChild();
+                }
+            });
+        };
+        spawnChild();
+      }],
+      [name('test')]: [
+        [name('jshint')],
+        () => {
+          return gulp.src(options.server.watch)
+              .pipe(gp.istanbul())
+              .pipe(gp.istanbul.hookRequire())
+              .on('finish', function() {
+                  gulp.src(options.test.main)
+                      .pipe(gp.mocha())
+                      .pipe(gp.istanbul.writeReports());
+              });
+        }
+      ],
+      [name('autotest')]: [() => {
+        gulp.watch(_.flatten([options.server.watch, options.test.watch]), ['test']);
+      }],
+      [name('docs')]: [() => {
+        return gulp.src(_.flatten([['gulpfile.js'], options.server.watch, options.test.watch, files.src.scripts]))
+            .pipe(gp.concat('README.md'))
+            .pipe(gp.jsdocToMarkdown({
+                template: fs.readFileSync('./docs.hbs', 'utf8')
+            })).pipe(gulp.dest('.'));
+      }],
+      [name('changelog')]: [() => {
+        return gulp.src('CHANGELOG.md')
+            .pipe(gp.conventionalChangelog({
+                preset: 'angular'
+            })).pipe(gulp.dest('.'));
+      }],
+      [name('poke')]: [() => {
+        console.log('yup, this works!')
+      }]
+    };
+
+    // now, register all of the default tasks
+    _.forEach(defaultTasks, (defaultTaskArgs, defaultTaskName) => {
+      var argArr = [defaultTaskName].concat(defaultTaskArgs);
+      task.apply(null, argArr);
+    });
+
+    /*
+    task(name('html'), function() {
+        return gulp.src(files.src.html)
+            .pipe(gp.htmlmin({collapseWhitespace: true}))
+            .pipe(gulp.dest(options.client.dest));
+    });
+
+    task(name('jshint'), function() {
+        return gulp.src(_.flatten([
+                files.src.scripts,
+                options.server.watch,
+                options.test.watch
+            ]))
+            .pipe(gp.jshint())
+            .pipe(gp.jshint.reporter(require('jshint-stylish')));
+            //.pipe(jshint.reporter('fail'));
+    });
+
+    task(name('scripts'), [name('jshint')], function() {
+        var src = merge(
+            gulp.src(files.lib.scripts)
+                .pipe(gp.concat('libs.js')),
+            gulp.src(files.src.templates)
+                .pipe(gp.htmlmin({collapseWhitespace: true}))
+                .pipe(gp.ngTemplates('templates.js', {
+                    standalone: true
+                })),
+            gulp.src(files.src.scripts)
+                .pipe(gp.sourcemaps.init())
+                .pipe(gp.babel())
+                .pipe(gp.ngAnnotate({
+                    'single_quotes': true
+                }))
+        );
+        src = src.pipe(gp.debug({title: 'scripts'}));
+        // src = src.pipe(gp.plumber({errorHandler: true}));
+        return src
+            .pipe(gp.concat(options.client.scripts.dest))
+            .pipe(gp.uglify())
+            .pipe(gp.sourcemaps.write('.'))
+            .pipe(gulp.dest(path.join(options.client.dest, options.client.scripts.cwd)));
+    });
+
+    task(name('styles'), function() {
+        var src = gulp.src(files.src.styles.main);
+        // src = src.pipe(gp.debug({title: 'styles'}));
+        return src
+            .pipe(gp.sourcemaps.init({loadMaps: true}))
+            .pipe(gp.plumber())
+            .pipe(gp.sass({
+                includePaths: _.flatten([
+                    files.lib.styles.include,
+                    files.src.styles.include
+                ])
+            }))
+            .pipe(gp.autoprefixer())
+            .pipe(gp.concat(options.client.styles.dest))
+            .pipe(gp.cssmin())
+            .pipe(gp.sourcemaps.write('.'))
+            .pipe(gulp.dest(path.join(options.client.dest, options.client.styles.cwd)));
+    });
+
+    task(name('images'), function() {
+        return gulp.src(files.src.images)
+            .pipe(gp.imagemin())
+            .pipe(gulp.dest(path.join(options.client.dest, options.client.images.cwd)));
+    });
+
+    task(name('build'), [
+        name('html'),
+        name('styles'),
+        name('scripts'),
+        name('images')
+    ]);
+
     task(name('server'), [name('build')], server);
     task(name('demon'), server);
 
@@ -497,4 +635,5 @@ module.exports = function(gulp, options) {
                 preset: 'angular'
             })).pipe(gulp.dest('.'));
     });
+    */
 };
