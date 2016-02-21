@@ -20,7 +20,7 @@ begin(gulp, {
 ```
 
 ### `begin(gulp, options)`
-`TODO`
+Augment gulp using `gulp-begin` (via `begin`) and passing an `option` object.
 
 #### `options.exclude`
 An array of task names to exclude from `gulp`.
@@ -58,8 +58,19 @@ results in a stylish manner.
 ### `styles`
 `TODO`
 
+### `images`
+Minifies images (PNGs and JPGs).
+
+### `svgs`
+Minifies and Angular-templates SVGs.
+
 ### `build`
-`TODO`
+A general task that performs the following tasks
+- `html`
+- `styles`
+- `scripts`
+- `images`
+- `svgs`
 
 ### `server`
 `TODO`
