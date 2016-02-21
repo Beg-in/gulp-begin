@@ -353,13 +353,18 @@ module.exports = function(gulp, options) {
      * `TODO`
      *
      * ### `images`
-     * `TODO`
+     * Minifies images (PNGs and JPGs).
      *
      * ### `svgs`
-     * `TODO`
+     * Minifies and Angular-templates SVGs.
      *
      * ### `build`
-     * `TODO`
+     * A general task that performs the following tasks
+     * - `html`
+     * - `styles`
+     * - `scripts`
+     * - `images`
+     * - `svgs`
      *
      * ### `server`
      * `TODO`
