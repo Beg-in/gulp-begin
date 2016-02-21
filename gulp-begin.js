@@ -195,7 +195,7 @@ module.exports = function(gulp, options) {
             },
             images: {
                 cwd: 'images',
-                src: ['**/*.png']
+                src: ['**/*.png', '**/*.jpg']
             }
         },
         test: {
