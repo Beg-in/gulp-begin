@@ -66,7 +66,7 @@ var gp = require('gulp-load-plugins')({
  * ```
  *
  * ### `begin(gulp, options)`
- * `TODO`
+ * Augment gulp using `gulp-begin` (via `begin`) and passing an `option` object.
  *
  * #### `options.exclude`
  * An array of task names to exclude from `gulp`.
