@@ -196,6 +196,10 @@ module.exports = function(gulp, options) {
             images: {
                 cwd: 'images',
                 src: ['**/*.png', '**/*.jpg']
+            },
+            svgs: {
+                cwd: 'images',
+                src: ['**/*.svg']
             }
         },
         test: {
@@ -233,7 +237,8 @@ module.exports = function(gulp, options) {
                     path.join(options.client.cwd, file)
                 ),
             },
-            images: buildSrc(options.client.images)
+            images: buildSrc(options.client.images),
+            svgs: buildSrc(options.client.svgs)
         },
         lib: {
             scripts: buildLib(options.client.scripts),
@@ -267,6 +272,7 @@ module.exports = function(gulp, options) {
             files.lib.styles.include
         ]), [name('styles')]);
         gulp.watch(files.src.images, [name('images')]);
+        gulp.watch(files.src.svgs, [name('svgs')]);
 
         var reloadable = function(file, cb) {
             gulp.watch(file, function(event) {
@@ -344,6 +350,12 @@ module.exports = function(gulp, options) {
      * `TODO`
      *
      * ### `styles`
+     * `TODO`
+     *
+     * ### `images`
+     * `TODO`
+     *
+     * ### `svgs`
      * `TODO`
      *
      * ### `build`
@@ -439,11 +451,22 @@ module.exports = function(gulp, options) {
             .pipe(gulp.dest(path.join(options.client.dest, options.client.images.cwd)));
 
       }],
+      [name('svgs')]: [() => {
+        return gulp.src(files.src.svgs)
+            .pipe(gp.imagemin({
+              svgoPlugins: [{
+                cleanupIDs: false
+              }]
+            }))
+            .pipe(gp.ngTemplates())
+            .pipe(gulp.dest(path.join(options.client.dest, options.client.svgs.cwd)));
+      }],
       [name('build')]: [[
         name('html'),
         name('styles'),
         name('scripts'),
-        name('images')
+        name('images'),
+        name('svgs')
       ]],
       [name('server')]: [
         [name('build')],
