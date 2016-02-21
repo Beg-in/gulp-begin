@@ -265,7 +265,7 @@ module.exports = function(gulp, options) {
             files.src.styles.main,
             files.src.styles.include,
             files.lib.styles.include
-        ])[name('styles')]);
+        ]), [name('styles')]);
         gulp.watch(files.src.images, [name('images')]);
 
         var reloadable = function(file, cb) {
@@ -508,7 +508,7 @@ module.exports = function(gulp, options) {
       excludedTasks = [];
     }
 
-    var task = (taskName, callback) => {
+    var task = function(taskName) {
       var isExcluded = _.includes(excludedTasks, taskName)
         || _.includes(excludedTasks, name(taskName));
 
@@ -519,7 +519,7 @@ module.exports = function(gulp, options) {
           });
         }
       } else {
-        gulp.task(taskName, callback);
+        gulp.task.apply(gulp, arguments);
       }
     };
 
