@@ -392,6 +392,7 @@ module.exports = function(gulp, options) {
       [name('scripts')]: [
         [name('jshint')],
         () => {
+            console.log('scripts');
           var src = merge(
               gulp.src(files.lib.scripts)
                   .pipe(gp.concat('libs.js')),
@@ -508,7 +509,7 @@ module.exports = function(gulp, options) {
       excludedTasks = [];
     }
 
-    var task = (taskName, callback) => {
+    var task = function(taskName) {
       var isExcluded = _.includes(excludedTasks, taskName)
         || _.includes(excludedTasks, name(taskName));
 
@@ -519,7 +520,7 @@ module.exports = function(gulp, options) {
           });
         }
       } else {
-        gulp.task(taskName, callback);
+        gulp.task.apply(gulp, arguments);
       }
     };
 
