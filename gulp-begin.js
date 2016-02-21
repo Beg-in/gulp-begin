@@ -265,7 +265,7 @@ module.exports = function(gulp, options) {
             files.src.styles.main,
             files.src.styles.include,
             files.lib.styles.include
-        ])[name('styles')]);
+        ]), [name('styles')]);
         gulp.watch(files.src.images, [name('images')]);
 
         var reloadable = function(file, cb) {
