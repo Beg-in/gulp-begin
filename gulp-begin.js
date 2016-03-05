@@ -406,6 +406,27 @@ module.exports = function(gulp, options) {
             .pipe(gp.jshint.reporter(require('jshint-stylish')));
             //.pipe(jshint.reporter('fail'));
       }],
+      [name('jscs')]: [() => {
+        console.log('in the jscs task!');
+        console.log(gp.jscs);
+        /*
+        return gulp.src(_.flatten([
+              files.src.scripts//,
+              //options.server.watch,
+              //options.test.watch
+          ]))
+          .pipe(gp.jscs())
+          .pipe(gp.jscs.reporter());
+        */
+        var gsrc = gulp.src(files.src.scripts);
+        console.log('got source');
+        console.log(files.src.scripts);
+        var p1 = gsrc.pipe(gp.jscs());
+        console.log('did first pipe');
+        var p2 = p1.pipe(gp.jscs.reporter());
+        console.log('RETURNING!');
+        return p2;
+      }],
       [name('scripts')]: [
         [name('jshint')],
         () => {
