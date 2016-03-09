@@ -153,6 +153,7 @@ module.exports = function(gulp, options) {
         gp.util.log.apply(gp.util, args);
     };
 
+    options = options || {};
     options = _.defaultsDeep(options, {
         root: process.cwd(),
         port: process.env.PORT,
@@ -264,6 +265,7 @@ module.exports = function(gulp, options) {
         gulp.watch(_.flatten([
             files.src.scripts,
             files.src.templates,
+            files.src.svgs,
             files.lib.scripts
         ]), [name('scripts')]);
         gulp.watch(_.flatten([
@@ -272,7 +274,6 @@ module.exports = function(gulp, options) {
             files.lib.styles.include
         ]), [name('styles')]);
         gulp.watch(files.src.images, [name('images')]);
-        gulp.watch(files.src.svgs, [name('svgs')]);
 
         var reloadable = function(file, cb) {
             gulp.watch(file, function(event) {
@@ -355,16 +356,12 @@ module.exports = function(gulp, options) {
      * ### `images`
      * Minifies images (PNGs and JPGs).
      *
-     * ### `svgs`
-     * Minifies and Angular-templates SVGs.
-     *
      * ### `build`
      * A general task that performs the following tasks
      * - `html`
      * - `styles`
      * - `scripts`
      * - `images`
-     * - `svgs`
      *
      * ### `server`
      * `TODO`
@@ -410,27 +407,35 @@ module.exports = function(gulp, options) {
         [name('jshint')],
         () => {
           var src = merge(
-              gulp.src(files.lib.scripts)
-                  .pipe(gp.concat('libs.js')),
-              gulp.src(files.src.templates)
-                  .pipe(gp.htmlmin({collapseWhitespace: true}))
-                  .pipe(gp.ngTemplates('templates.js', {
-                      standalone: true
-                  })),
-              gulp.src(files.src.scripts)
-                  .pipe(gp.sourcemaps.init())
-                  .pipe(gp.babel())
-                  .pipe(gp.ngAnnotate({
-                      'single_quotes': true
-                  }))
+            gulp.src(files.lib.scripts)
+                .pipe(gp.concat('libs.js')),
+            gulp.src(files.src.templates)
+                .pipe(gp.htmlmin({collapseWhitespace: true}))
+                .pipe(gp.ngTemplates()),
+            gulp.src(files.src.svgs)
+                .pipe(gp.imagemin({
+                    svgoPlugins: [{
+                        cleanupIDs: false
+                    }]
+                }))
+                .pipe(gp.ngTemplates({
+                    filename: 'svgs.js',
+                    module: 'svgs'
+                })),
+            gulp.src(files.src.scripts)
+                .pipe(gp.sourcemaps.init())
+                .pipe(gp.babel())
+                .pipe(gp.ngAnnotate({
+                    'single_quotes': true
+                }))
           );
-          src = src.pipe(gp.debug({title: 'scripts'}));
+          // src = src.pipe(gp.debug({title: 'scripts'}));
           // src = src.pipe(gp.plumber({errorHandler: true}));
           return src
-              .pipe(gp.concat(options.client.scripts.dest))
-              .pipe(gp.uglify())
-              .pipe(gp.sourcemaps.write('.'))
-              .pipe(gulp.dest(path.join(options.client.dest, options.client.scripts.cwd)));
+            .pipe(gp.concat(options.client.scripts.dest))
+            .pipe(gp.uglify())
+            .pipe(gp.sourcemaps.write('.'))
+            .pipe(gulp.dest(path.join(options.client.dest, options.client.scripts.cwd)));
       }],
       [name('styles')]: [() => {
         var src = gulp.src(files.src.styles.main);
@@ -456,22 +461,11 @@ module.exports = function(gulp, options) {
             .pipe(gulp.dest(path.join(options.client.dest, options.client.images.cwd)));
 
       }],
-      [name('svgs')]: [() => {
-        return gulp.src(files.src.svgs)
-            .pipe(gp.imagemin({
-              svgoPlugins: [{
-                cleanupIDs: false
-              }]
-            }))
-            .pipe(gp.ngTemplates())
-            .pipe(gulp.dest(path.join(options.client.dest, options.client.svgs.cwd)));
-      }],
       [name('build')]: [[
         name('html'),
         name('styles'),
         name('scripts'),
-        name('images'),
-        name('svgs')
+        name('images')
       ]],
       [name('server')]: [
         [name('build')],
