@@ -411,7 +411,9 @@ module.exports = function(gulp, options) {
                 .pipe(gp.concat('libs.js')),
             gulp.src(files.src.templates)
                 .pipe(gp.htmlmin({collapseWhitespace: true}))
-                .pipe(gp.ngTemplates()),
+                .pipe(gp.ngTemplates({
+                    standalone: true
+                })),
             gulp.src(files.src.svgs)
                 .pipe(gp.imagemin({
                     svgoPlugins: [{
@@ -419,6 +421,7 @@ module.exports = function(gulp, options) {
                     }]
                 }))
                 .pipe(gp.ngTemplates({
+                    standalone: true,
                     filename: 'svgs.js',
                     module: 'svgs'
                 })),
