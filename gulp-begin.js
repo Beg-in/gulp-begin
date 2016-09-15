@@ -388,170 +388,169 @@ module.exports = function(gulp, options) {
      */
 
     var defaultTasks = {
-      [name('html')]: [() => {
-        return gulp.src(files.src.html)
-            .pipe(gp.htmlmin({collapseWhitespace: true}))
-            .pipe(gulp.dest(options.client.dest));
-      }],
-      [name('jshint')]: [() => {
-        return gulp.src(_.flatten([
-                files.src.scripts,
-                options.server.watch,
-                options.test.watch
-            ]))
-            .pipe(gp.jshint())
-            .pipe(gp.jshint.reporter(require('jshint-stylish')));
-            //.pipe(jshint.reporter('fail'));
-      }],
-      [name('scripts')]: [
-        [name('jshint')],
-        () => {
-          var src = merge(
-            gulp.src(files.lib.scripts)
-                .pipe(gp.concat('libs.js')),
-            gulp.src(files.src.templates)
+        [name('html')]: [() => {
+            return gulp.src(files.src.html)
                 .pipe(gp.htmlmin({collapseWhitespace: true}))
-                .pipe(gp.ngTemplates({
-                    standalone: true
-                })),
-            gulp.src(files.src.svgs)
-                .pipe(gp.imagemin({
-                    svgoPlugins: [{
-                        cleanupIDs: false
-                    }]
+                .pipe(gulp.dest(options.client.dest));
+        }],
+        [name('jshint')]: [() => {
+            return gulp.src(_.flatten([
+                    files.src.scripts,
+                    options.server.watch,
+                    options.test.watch
+                ]))
+                .pipe(gp.jshint())
+                .pipe(gp.jshint.reporter(require('jshint-stylish')));
+                //.pipe(jshint.reporter('fail'));
+        }],
+        [name('scripts')]: [() => {
+            var src = merge(
+                gulp.src(files.lib.scripts)
+                    .pipe(gp.concat('libs.js')),
+                gulp.src(files.src.templates)
+                    .pipe(gp.htmlmin({collapseWhitespace: true}))
+                    .pipe(gp.ngTemplates({
+                        standalone: true
+                    })),
+                gulp.src(files.src.svgs)
+                    .pipe(gp.imagemin({
+                        svgoPlugins: [{
+                            cleanupIDs: false
+                        }]
+                    }))
+                    .pipe(gp.ngTemplates({
+                        standalone: true,
+                        filename: 'svgs.js',
+                        module: 'svgs'
+                    })),
+                gulp.src(files.src.scripts)
+                    .pipe(gp.sourcemaps.init())
+                    .pipe(gp.babel())
+                    .pipe(gp.ngAnnotate({
+                        'single_quotes': true
+                    }))
+            );
+            // src = src.pipe(gp.debug({title: 'scripts'}));
+            // src = src.pipe(gp.plumber({errorHandler: true}));
+            return src
+                .pipe(gp.concat(options.client.scripts.dest))
+                .pipe(gp.uglify())
+                .pipe(gp.sourcemaps.write('.'))
+                .pipe(gulp.dest(path.join(options.client.dest, options.client.scripts.cwd)));
+        }],
+        [name('styles')]: [() => {
+            var src = gulp.src(files.src.styles.main);
+            // src = src.pipe(gp.debug({title: 'styles'}));
+            return src
+                .pipe(gp.sourcemaps.init({loadMaps: true}))
+                .pipe(gp.plumber())
+                .pipe(gp.sass({
+                    includePaths: _.flatten([
+                        files.lib.styles.include,
+                        files.src.styles.include
+                    ])
                 }))
-                .pipe(gp.ngTemplates({
-                    standalone: true,
-                    filename: 'svgs.js',
-                    module: 'svgs'
-                })),
-            gulp.src(files.src.scripts)
-                .pipe(gp.sourcemaps.init())
-                .pipe(gp.babel())
-                .pipe(gp.ngAnnotate({
-                    'single_quotes': true
-                }))
-          );
-          // src = src.pipe(gp.debug({title: 'scripts'}));
-          // src = src.pipe(gp.plumber({errorHandler: true}));
-          return src
-            .pipe(gp.concat(options.client.scripts.dest))
-            .pipe(gp.uglify())
-            .pipe(gp.sourcemaps.write('.'))
-            .pipe(gulp.dest(path.join(options.client.dest, options.client.scripts.cwd)));
-      }],
-      [name('styles')]: [() => {
-        var src = gulp.src(files.src.styles.main);
-        // src = src.pipe(gp.debug({title: 'styles'}));
-        return src
-            .pipe(gp.sourcemaps.init({loadMaps: true}))
-            .pipe(gp.plumber())
-            .pipe(gp.sass({
-                includePaths: _.flatten([
-                    files.lib.styles.include,
-                    files.src.styles.include
-                ])
-            }))
-            .pipe(gp.autoprefixer())
-            .pipe(gp.concat(options.client.styles.dest))
-            .pipe(gp.cssmin())
-            .pipe(gp.sourcemaps.write('.'))
-            .pipe(gulp.dest(path.join(options.client.dest, options.client.styles.cwd)));
-      }],
-      [name('images')]: [() => {
-        return gulp.src(files.src.images)
-            .pipe(gp.imagemin())
-            .pipe(gulp.dest(path.join(options.client.dest, options.client.images.cwd)));
+                .pipe(gp.autoprefixer())
+                .pipe(gp.concat(options.client.styles.dest))
+                .pipe(gp.cssmin())
+                .pipe(gp.sourcemaps.write('.'))
+                .pipe(gulp.dest(path.join(options.client.dest, options.client.styles.cwd)));
+        }],
+        [name('images')]: [() => {
+            return gulp.src(files.src.images)
+                .pipe(gp.imagemin())
+                .pipe(gulp.dest(path.join(options.client.dest, options.client.images.cwd)));
 
-      }],
-      [name('build')]: [[
-        name('html'),
-        name('styles'),
-        name('scripts'),
-        name('images')
-      ]],
-      [name('server')]: [
-        [name('build')],
-        server
-      ],
-      [name('demon')]: [
-        server
-      ],
-      [name('dev')]: [() => {
-        cp.execSync('npm install', {stdio: 'inherit'});
-        var spawnChild = function() {
-            cp.spawn('gulp' + (process.platform === 'win32' ? '.cmd' : ''),
-                [name('demon')], {stdio: 'inherit'}).on('close', (code) => {
-                if(code === 0) {
-                    spawnChild();
-                }
-            });
-        };
-        spawnChild();
-      }],
-      [name('test')]: [
-        [name('jshint')],
-        () => {
-          return gulp.src(options.server.watch)
-              .pipe(gp.istanbul())
-              .pipe(gp.istanbul.hookRequire())
-              .on('finish', function() {
-                  gulp.src(options.test.main)
-                      .pipe(gp.mocha())
-                      .pipe(gp.istanbul.writeReports());
-              });
-        }
-      ],
-      [name('autotest')]: [() => {
-        gulp.watch(_.flatten([options.server.watch, options.test.watch]), ['test']);
-      }],
-      [name('docs')]: [() => {
-        return gulp.src(_.flatten([['gulpfile.js'],
-              options.server.watch, options.test.watch, files.src.scripts]))
-            .pipe(gp.concat('README.md'))
-            .pipe(gp.jsdocToMarkdown({
-                template: fs.readFileSync('./docs.hbs', 'utf8')
-            })).pipe(gulp.dest('.'));
-      }],
-      [name('changelog')]: [() => {
-        return gulp.src('CHANGELOG.md')
-            .pipe(gp.conventionalChangelog({
-                preset: 'angular'
-            })).pipe(gulp.dest('.'));
-      }]
+        }],
+        [name('build')]: [[
+            name('html'),
+            name('styles'),
+            name('scripts'),
+            name('images')
+        ]],
+        [name('server')]: [
+            [name('build')],
+            server
+        ],
+        [name('demon')]: [
+            server
+        ],
+        [name('dev')]: [() => {
+            var spawnChild = function() {
+                cp.spawn('gulp' + (process.platform === 'win32' ? '.cmd' : ''),
+                    [name('server')], {stdio: 'inherit'}).on('close', (code) => {
+                    if(code === 0) {
+                        spawnChild();
+                    }
+                });
+            };
+            spawnChild();
+        }],
+        [name('test')]: [
+            [name('jshint')],
+            () => {
+                return gulp.src(options.server.watch)
+                    .pipe(gp.istanbul())
+                    .pipe(gp.istanbul.hookRequire())
+                    .on('finish', function() {
+                        gulp.src(options.test.main)
+                            .pipe(gp.mocha())
+                            .pipe(gp.istanbul.writeReports());
+                    });
+            }
+        ],
+        [name('autotest')]: [() => {
+          gulp.watch(_.flatten([options.server.watch, options.test.watch]), ['test']);
+        }],
+        [name('docs')]: [() => {
+            return gulp.src(_.flatten([
+                    ['gulpfile.js'],
+                    options.server.watch,
+                    options.test.watch,
+                    files.src.scripts
+                ]))
+                .pipe(gp.concat('README.md'))
+                .pipe(gp.jsdocToMarkdown({
+                    template: fs.readFileSync('./docs.hbs', 'utf8')
+                })).pipe(gulp.dest('.'));
+        }],
+        [name('changelog')]: [() => {
+            return gulp.src('CHANGELOG.md')
+                .pipe(gp.conventionalChangelog({
+                    preset: 'angular'
+                })).pipe(gulp.dest('.'));
+        }]
     };
 
     var excludedTasks;
 
-    if (options.exclude) {
-      excludedTasks = options.exclude;
-    } else if (options.only) {
-      var allDefaultTaskNames   = _.keys(defaultTasks);
-      var onlyDefaultTaskNames  = _.map(options.only, name);
-      excludedTasks = _.difference(allDefaultTaskNames, onlyDefaultTaskNames);
+    if(options.exclude) {
+        excludedTasks = _.map(options.exclude, name);
+    } else if(options.only) {
+        var allDefaultTaskNames = _.keys(defaultTasks);
+        var onlyDefaultTaskNames = _.map(options.only, name);
+        excludedTasks = _.difference(allDefaultTaskNames, onlyDefaultTaskNames);
     } else {
-      excludedTasks = [];
+        excludedTasks = [];
     }
 
     var task = function(taskName) {
-      var isExcluded = _.includes(excludedTasks, taskName)
-        || _.includes(excludedTasks, name(taskName));
+        var isExcluded = _.includes(excludedTasks, taskName)
+            || _.includes(excludedTasks, name(taskName));
 
-      if (isExcluded) {
-        if (options.warnExclusions) {
-          gulp.task(taskName, () => {
-            console.warn(`Task <${taskName}> has been explicity excluded!`);
-          });
+        if(isExcluded && options.warnExclusions) {
+            gulp.task(taskName, () => {
+                console.warn(`Task <${taskName}> has been explicity excluded!`);
+            });
+        } else {
+            gulp.task.apply(gulp, arguments);
         }
-      } else {
-        gulp.task.apply(gulp, arguments);
-      }
     };
 
 
     // now, register all of the default tasks
     _.forEach(defaultTasks, (defaultTaskArgs, defaultTaskName) => {
-      var argArr = [defaultTaskName].concat(defaultTaskArgs);
-      task.apply(null, argArr);
+        var argArr = [defaultTaskName].concat(defaultTaskArgs);
+        task.apply(null, argArr);
     });
 };
