@@ -57,10 +57,12 @@
     "gulp-sourcemaps": "1.6.0",
     "gulp-uglify": "1.5.1",
     "gulp-util": "3.0.7",
+    "jshint": "2.9.4",
     "jshint-stylish": "2.1.0",
     "lodash": "3.10.1",
     "merge2": "1.0.0",
     "nodep": "0.2.1",
+    "node-sass": "3.10.1",
     "shortid": "2.2.4",
     "tiny-lr": "0.2.1"
   }
